@@ -1,22 +1,26 @@
-# TextAlign
+# Image Transcription V3 (TextAlign)
 
-A React-based web application for collaborative image-text transcription correction with a 3-tier quality assurance (QA) pipeline. Teams use it to review and correct noisy or OCR-generated text against source images, with strict role-based workflows ensuring accuracy before final approval.
+A React web app for collaborative image-text transcription correction using the
+`imagetranscriptionv3` backend workflow: three double-blind annotators, then one
+reviewer. Teams correct OCR text against source images with role-gated submit,
+approve, reject, and trash actions.
 
 ## Features
 
-- **3-Tier QA Pipeline** — Annotator → Reviewer → Final Reviewer with full audit trail
-- **Workspace Editor** — Side-by-side image viewer (pan/zoom/TIFF support) and editable text field
-- **Role-Based Dashboards** — Task queues and completion metrics per role
-- **Admin Panel** — Manage users, groups, and task batches
-- **Internationalization** — English and Tibetan (Bodic) UI
-- **Theme Support** — Light, dark, and system-default modes
-- **Keyboard Shortcuts** — `Ctrl/Cmd +/-/0` to zoom, `Ctrl/Cmd+S` to save draft
+- **Double-blind annotation** — Annotators A, B, and C start from baseline OCR, never each other's work
+- **Reviewer workspace** — Compare all three annotations, approve, or reject any combination of slots
+- **Role-based access** — Admin, Annotator, Reviewer; users without a role stay on Pending Approval
+- **Workspace editor** — Pan/zoom/TIFF image viewer, Tibetan text editor, local drafts
+- **Admin panel** — Users, groups, batches, task listing/search, restore, CSV export, contribution reports
+- **Internationalization** — English and Tibetan (Bodic)
+- **Theme support** — Light, dark, and system
+- **Keyboard shortcuts** — `Ctrl/Cmd +/-/0` zoom, `Ctrl/Cmd+S` save draft
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | Vite 7 + React 18 + TypeScript 5.9 |
+| Framework | Vite 7 + React 19 + TypeScript 5.9 |
 | Styling | Tailwind CSS 4 + shadcn/ui (Radix UI) |
 | Routing | React Router v7 |
 | Server state | TanStack Query v5 |
@@ -52,13 +56,15 @@ See [docs/getting-started.md](docs/getting-started.md) for full environment vari
 
 ## Task State Machine
 
+```text
+pending
+  -> annotating -> annotated_a
+  -> annotating_b -> annotated_b
+  -> annotating_c -> annotated
+  -> reviewing -> reviewed
 ```
-Pending → InProgress → AwaitingReview → InReview → AwaitingFinalReview → FinalReview → Completed
-                                             ↓                                  ↓
-                                         Rejected ←────────────────────────────┘
-                                             ↓
-                                         InProgress (re-assigned)
-```
+
+`reviewed` is the completed state. `trashed` is also terminal (Annotator A only).
 
 Full workflow details: [docs/workflows.md](docs/workflows.md)
 
